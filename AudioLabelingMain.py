@@ -5,7 +5,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtCore import QUrl
 from AudioLabelingUI import *
 import json
-
+from pydub import AudioSegment
 
 class AudioLabelingApp(QMainWindow):
     def __init__(self):
@@ -34,6 +34,7 @@ class AudioLabelingApp(QMainWindow):
         self.ui.NeutralPushButton.clicked.connect(lambda: self.set_emotion('neu'))
         self.ui.ResetPushButton.clicked.connect(lambda: self.set_emotion(''))
         self.ui.actionSaveAs.triggered.connect(self.save_results)
+        self.ui.StartSelectionButton.clicked.connect(self.start_audio_selection)
 
     def open_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder")
@@ -168,6 +169,26 @@ class AudioLabelingApp(QMainWindow):
         if save_path:
             with open(save_path, 'w') as file:
                 json.dump(results, file, indent=4)
+    def start_audio_selection(self):
+        start_time_ms = self.ui.StartTimeInput.value()
+        end_time_ms = self.ui.EndTimeInput.value()
+        path  = self.audio_files[self.current_audio_index]
+        # print(start_time_ms, path)
+        self.cut_audio(start_time_ms,end_time_ms, path)
+
+    def cut_audio(self, start_time, end_time, audio_path, output_path):
+        # Load the audio file
+        audio = AudioSegment.from_file(audio_path)
+
+        # Convert start and end times to milliseconds
+        start_ms = int(start_time * 1000)
+        end_ms = int(end_time * 1000)
+
+        # Cut the audio
+        cut_audio = audio[start_ms:end_ms]
+
+        # Export the cut audio to the specified output file
+        cut_audio.export(output_path, format="wav") 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

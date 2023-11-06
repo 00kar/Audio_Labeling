@@ -58,11 +58,13 @@ class Ui_MainWindow(object):
         self.AudioTimeLabel.setGeometry(QtCore.QRect(385, 10, 56, 20))
         self.AudioTimeLabel.setObjectName("AudioTimeLabel")
         self.ChangeAudioFrame = QtWidgets.QFrame(self.BottomFrame)
+        
         self.ChangeAudioFrame.setGeometry(QtCore.QRect(0, 40, 450, 40))
         self.ChangeAudioFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.ChangeAudioFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.ChangeAudioFrame.setObjectName("ChangeAudioFrame")
         self.NextAudioPushButton = QtWidgets.QPushButton(self.ChangeAudioFrame)
+        
         self.NextAudioPushButton.setGeometry(QtCore.QRect(350, 4, 100, 32))
         self.NextAudioPushButton.setObjectName("NextAudioPushButton")
         self.PreviousAudioPushButton = QtWidgets.QPushButton(self.ChangeAudioFrame)
@@ -116,6 +118,31 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.StartTimeLabel = QtWidgets.QLabel(self.CentralFrame)
+        self.StartTimeLabel.setGeometry(QtCore.QRect(5, 4, 100, 32))
+        self.StartTimeLabel.setObjectName("StartTimeLabel")
+        self.StartTimeLabel.setText("Start Time (s):")
+
+        self.EndTimeLabel = QtWidgets.QLabel(self.CentralFrame)
+        self.EndTimeLabel.setGeometry(QtCore.QRect(220, 4, 100, 32))
+        self.EndTimeLabel.setObjectName("EndTimeLabel")
+        self.EndTimeLabel.setText("End Time (s):")
+
+        self.StartTimeInput = QtWidgets.QDoubleSpinBox(self.CentralFrame)
+        self.StartTimeInput.setGeometry(QtCore.QRect(140, 4, 60, 32))
+        self.StartTimeInput.setObjectName("StartTimeInput")
+        self.StartTimeInput.setDecimals(2)  # Set the number of decimal places
+
+        self.EndTimeInput = QtWidgets.QDoubleSpinBox(self.CentralFrame)
+        self.EndTimeInput.setGeometry(QtCore.QRect(330, 4, 60, 32))
+        self.EndTimeInput.setObjectName("EndTimeInput")
+        self.EndTimeInput.setDecimals(2)  # Set the number of decimal places
+
+        self.StartSelectionButton = QtWidgets.QPushButton(self.CentralFrame)
+        self.StartSelectionButton.setGeometry(QtCore.QRect(80, 50, 120, 32))
+        self.StartSelectionButton.setObjectName("StartSelectionButton")
+        self.StartSelectionButton.setText("Cut-Cut")
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
