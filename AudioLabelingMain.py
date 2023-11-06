@@ -39,7 +39,7 @@ class AudioLabelingApp(QMainWindow):
     def open_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder")
         if folder_path:
-            self.audio_files = [os.path.join(folder_path, filename) for filename in os.listdir(folder_path) if filename.endswith(('.mp4', '.wav'))]
+            self.audio_files = [os.path.join(folder_path, filename) for filename in sorted(os.listdir(folder_path)) if filename.endswith(('.mp4', '.wav'))]
             self.audio_names = [os.path.basename(audio_file) for audio_file in self.audio_files]
             self.results = {}
             for file in self.audio_files:
@@ -174,7 +174,7 @@ class AudioLabelingApp(QMainWindow):
         end_time_ms = self.ui.EndTimeInput.value()
         path  = self.audio_files[self.current_audio_index]
         # print(start_time_ms, path)
-        self.cut_audio(start_time_ms,end_time_ms, path)
+        self.cut_audio(start_time_ms,end_time_ms, path, path)
 
     def cut_audio(self, start_time, end_time, audio_path, output_path):
         # Load the audio file
@@ -186,6 +186,7 @@ class AudioLabelingApp(QMainWindow):
 
         # Cut the audio
         cut_audio = audio[start_ms:end_ms]
+        output_path = audio_path[:-4] + "_____1.wav"
 
         # Export the cut audio to the specified output file
         cut_audio.export(output_path, format="wav") 
