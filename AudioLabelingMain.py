@@ -1,11 +1,16 @@
-import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtCore import QUrl
-from AudioLabelingUI import *
+import sys
 import json
+import glob
+
+from PyQt5.QtCore import QUrl
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+
 from pydub import AudioSegment
+
+from AudioLabelingUI import *
+
 
 class AudioLabelingApp(QMainWindow):
     def __init__(self):
@@ -32,18 +37,27 @@ class AudioLabelingApp(QMainWindow):
         self.ui.AngryPushButton.clicked.connect(lambda: self.set_emotion('ang'))
         self.ui.SadPushButton.clicked.connect(lambda: self.set_emotion('sad'))
         self.ui.NeutralPushButton.clicked.connect(lambda: self.set_emotion('neu'))
-        self.ui.ResetPushButton.clicked.connect(lambda: self.set_emotion(''))
+        self.ui.ResetPushButton.clicked.connect(lambda: self.set_emotion(None))
         self.ui.actionSaveAs.triggered.connect(self.save_results)
         self.ui.StartSelectionButton.clicked.connect(self.start_audio_selection)
 
     def open_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder")
+        label_file_path = glob.glob(f"{folder_path}/*.json")
+        print(folder_path, label_file_path)
         if folder_path:
             self.audio_files = [os.path.join(folder_path, filename) for filename in sorted(os.listdir(folder_path)) if filename.endswith(('.mp4', '.wav'))]
             self.audio_names = [os.path.basename(audio_file) for audio_file in self.audio_files]
             self.results = {}
-            for file in self.audio_files:
-                self.results[file] = {"emotion" : None, "length" : None}
+            if label_file_path:
+                print(label_file_path[0])
+                with open(label_file_path[0], 'r') as labels_file:
+                    uploaded_labels = json.load(labels_file)
+                for labeli in uploaded_labels:
+                    self.results[labeli['wav']] = {"emotion" : labeli['emo'], "length" : labeli['length']}
+            else:
+                for file in self.audio_files:
+                    self.results[file] = {"emotion" : None, "length" : None}
             self.current_audio_index = 0
             self.update_audio_info()
             self.load_audio_files()
@@ -57,6 +71,19 @@ class AudioLabelingApp(QMainWindow):
         for i in range(len(self.audio_files)):
             audio_button = QtWidgets.QPushButton(os.path.basename(self.audio_files[i]))
             audio_button.clicked.connect(self.audio_file_chosen)
+
+            emotion = self.results[self.audio_files[i]]['emotion']
+            if emotion == 'hap':
+                audio_button.setStyleSheet("QPushButton { background-color: rgb(129, 255, 124); }")
+            elif emotion == 'ang':
+                audio_button.setStyleSheet("QPushButton { background-color: rgb(255, 66, 94); }")
+            elif emotion == 'sad':
+                audio_button.setStyleSheet("QPushButton { background-color: rgb(248, 255, 159); }")
+            elif emotion == 'neu':
+                audio_button.setStyleSheet("QPushButton { background-color: rgb(138, 255, 238); }")
+            else:
+                audio_button.setStyleSheet("")
+
             layout.addWidget(audio_button)
 
         self.ui.scrollArea.setWidget(self.ui.scrollAreaWidgetContents)
@@ -93,7 +120,7 @@ class AudioLabelingApp(QMainWindow):
             current_button.setStyleSheet("QPushButton { background-color: rgb(248, 255, 159); }")
         elif emotion == 'neu':
             current_button.setStyleSheet("QPushButton { background-color: rgb(138, 255, 238); }")
-        elif emotion == '':
+        else:
             current_button.setStyleSheet("")
 
 
