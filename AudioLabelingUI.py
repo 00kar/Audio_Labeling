@@ -143,6 +143,13 @@ class Ui_MainWindow(object):
         self.StartSelectionButton.setObjectName("StartSelectionButton")
         self.StartSelectionButton.setText("Cut-Cut")
 
+        self.AudioNameLabel = QtWidgets.QLabel(self.ChangeAudioFrame)
+        self.AudioNameLabel.setGeometry(QtCore.QRect(105, 4, 100, 32))
+        self.AudioNameLabel.setFixedWidth(240)
+        self.AudioNameLabel.setObjectName("AudioNameLabel")
+        self.AudioNameLabel.setText("Not selected")     
+        self.AudioNameLabel.setAlignment(QtCore.Qt.AlignCenter)
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

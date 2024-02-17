@@ -92,6 +92,7 @@ class AudioLabelingApp(QMainWindow):
         self.play_audio(self.audio_files[self.current_audio_index])
 
     def play_audio(self, audio_file_i):
+        self.ui.AudioNameLabel.setText(os.path.basename(audio_file_i))
         self.ui.AudioPlayPushButton.setText("Pause")
         media = QMediaContent(QUrl.fromLocalFile(audio_file_i))
         self.media_player.setMedia(media)
