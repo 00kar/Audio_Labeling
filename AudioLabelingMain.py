@@ -44,13 +44,11 @@ class AudioLabelingApp(QMainWindow):
     def open_folder(self):
         folder_path = QFileDialog.getExistingDirectory(self, "Open Folder")
         label_file_path = glob.glob(f"{folder_path}/*.json")
-        print(folder_path, label_file_path)
         if folder_path:
             self.audio_files = [os.path.join(folder_path, filename) for filename in sorted(os.listdir(folder_path)) if filename.endswith(('.mp4', '.wav'))]
             self.audio_names = [os.path.basename(audio_file) for audio_file in self.audio_files]
             self.results = {}
             if label_file_path:
-                print(label_file_path[0])
                 with open(label_file_path[0], 'r') as labels_file:
                     uploaded_labels = json.load(labels_file)
                 for labeli in uploaded_labels:
@@ -66,7 +64,7 @@ class AudioLabelingApp(QMainWindow):
         self.ui.scrollAreaWidgetContents.deleteLater()
         self.ui.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.ui.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 188, 418))
-        layout = QtWidgets.QVBoxLayout(self.ui.scrollAreaWidgetContents)
+        self.layout = QtWidgets.QVBoxLayout(self.ui.scrollAreaWidgetContents)
 
         for i in range(len(self.audio_files)):
             audio_button = QtWidgets.QPushButton(os.path.basename(self.audio_files[i]))
@@ -84,7 +82,7 @@ class AudioLabelingApp(QMainWindow):
             else:
                 audio_button.setStyleSheet("")
 
-            layout.addWidget(audio_button)
+            self.layout.addWidget(audio_button)
 
         self.ui.scrollArea.setWidget(self.ui.scrollAreaWidgetContents)
 
@@ -200,23 +198,34 @@ class AudioLabelingApp(QMainWindow):
         start_time_ms = self.ui.StartTimeInput.value()
         end_time_ms = self.ui.EndTimeInput.value()
         path  = self.audio_files[self.current_audio_index]
-        # print(start_time_ms, path)
         self.cut_audio(start_time_ms,end_time_ms, path, path)
 
     def cut_audio(self, start_time, end_time, audio_path, output_path):
-        # Load the audio file
         audio = AudioSegment.from_file(audio_path)
 
-        # Convert start and end times to milliseconds
         start_ms = int(start_time * 1000)
         end_ms = int(end_time * 1000)
 
-        # Cut the audio
-        cut_audio = audio[start_ms:end_ms]
-        output_path = audio_path[:-4] + "_____1.wav"
+        replicas = glob.glob(audio_path[:-4]+'*')
+        print(replicas)
+        if replicas:
+            replicaID = int( sorted(replicas)[-1].split("-slice")[-1][:-4] ) + 1 if replicas else 1
+        else:
+            replicaID = 1
+        replica_path = audio_path[:-4] + f"-slice{replicaID}.wav"
 
-        # Export the cut audio to the specified output file
-        cut_audio.export(output_path, format="wav") 
+        audio_slice = audio[start_ms:end_ms]
+        audio_slice.export(replica_path, format="wav") 
+
+        # Update info
+        self.results[replica_path] = {"emotion" : None, "length" : None}
+        self.audio_files.insert(self.current_audio_index + 1, replica_path)
+        self.audio_names.insert(self.current_audio_index + 1, os.path.basename(replica_path))
+
+        audio_button = QtWidgets.QPushButton(os.path.basename(replica_path))
+        audio_button.clicked.connect(self.audio_file_chosen)
+        audio_button.setStyleSheet("")
+        self.layout.insertWidget(self.current_audio_index + 1, audio_button)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
