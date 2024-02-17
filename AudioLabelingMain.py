@@ -206,7 +206,7 @@ class AudioLabelingApp(QMainWindow):
         start_ms = int(start_time * 1000)
         end_ms = int(end_time * 1000)
 
-        replicas = glob.glob(audio_path[:-4]+'*')
+        replicas = glob.glob(audio_path[:-4]+'-slice*')
         print(replicas)
         if replicas:
             replicaID = int( sorted(replicas)[-1].split("-slice")[-1][:-4] ) + 1 if replicas else 1
@@ -219,13 +219,13 @@ class AudioLabelingApp(QMainWindow):
 
         # Update info
         self.results[replica_path] = {"emotion" : None, "length" : None}
-        self.audio_files.insert(self.current_audio_index + 1, replica_path)
-        self.audio_names.insert(self.current_audio_index + 1, os.path.basename(replica_path))
+        self.audio_files.insert(self.current_audio_index + replicaID, replica_path)
+        self.audio_names.insert(self.current_audio_index + replicaID, os.path.basename(replica_path))
 
         audio_button = QtWidgets.QPushButton(os.path.basename(replica_path))
         audio_button.clicked.connect(self.audio_file_chosen)
         audio_button.setStyleSheet("")
-        self.layout.insertWidget(self.current_audio_index + 1, audio_button)
+        self.layout.insertWidget(self.current_audio_index + replicaID, audio_button)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
